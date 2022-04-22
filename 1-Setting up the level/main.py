@@ -20,4 +20,4 @@ while True:
 
     # Update status
     pygame.display.update()
-    clock.ticj(60)
+    clock.tick(60)
