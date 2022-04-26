@@ -77,10 +77,6 @@ class Level:
                     player.rect.top = sprite.rect.bottom
                     player.direction.y = 0 # Avoids sticks to the ceiling (spiderman effect)
 
-
-
-
-
     def run(self):
 
         # level tiles
