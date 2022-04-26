@@ -1,6 +1,7 @@
 import pygame
 from tile import Tile
 from settings import tile_size
+from players import Player
 
 class Level:
     def __init__(self,level_data,surface): #surface to draw on
@@ -21,6 +22,12 @@ class Level:
                     y = row_index * tile_size
                     tile = Tile((x,y),tile_size)
                     self.tiles.add(tile)
+                # player
+                if cell == 'P':
+                    x = col_index * tile_size
+                    y = row_index * tile_size
+                    player = Player((x,y))
+                    self.tiles.add(player)
 
 
     def run(self):
