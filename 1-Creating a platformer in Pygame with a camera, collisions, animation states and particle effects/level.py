@@ -1,6 +1,6 @@
 import pygame
 from tile import Tile
-from settings import tile_size
+from settings import tile_size, player_speed
 from players import Player
 
 class Level:
@@ -40,15 +40,15 @@ class Level:
 
 
         if player_x < 200 and direction_x < 0: # move left
-            self.world_shift = 8*2
+            self.world_shift = player_speed
             player.speed = 0
 
         elif player_x > 1000 and direction_x > 0: # move right
-            self.world_shift = -8*2
+            self.world_shift = -player_speed
             player.speed = 0
         else:
             self.world_shift = 0
-            player.speed = 8
+            player.speed = player_speed
 
     def run(self):
 
