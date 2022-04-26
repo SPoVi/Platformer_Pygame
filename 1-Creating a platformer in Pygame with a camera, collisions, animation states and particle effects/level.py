@@ -12,24 +12,32 @@ class Level:
         self.world_shift = 0
 
     def setup_level(self,layout):
+        # Groups
         self.tiles = pygame.sprite.Group()
+        self.player = pygame.sprite.Group()
 
         for row_index,row in enumerate(layout): #enumerate gives a tuple
             for col_index, cell in enumerate(row): #individual char in the str
                 #print(f'{row_index},{col_index}:{cell}') # row,col,val
+                x = col_index * tile_size
+                y = row_index * tile_size
+                # level tiles
                 if cell == 'X':
-                    x = col_index * tile_size
-                    y = row_index * tile_size
+
                     tile = Tile((x,y),tile_size)
                     self.tiles.add(tile)
                 # player
                 if cell == 'P':
-                    x = col_index * tile_size
-                    y = row_index * tile_size
-                    player = Player((x,y))
-                    self.tiles.add(player)
+                    player_sprite = Player((x,y))
+                    self.player.add(player_sprite)
 
 
     def run(self):
+
+        # level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
+
+        # player
+        self.player.update(self.world_shift)
+        self.player.draw(self.display_surface)
