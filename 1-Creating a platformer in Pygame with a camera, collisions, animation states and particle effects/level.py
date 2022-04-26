@@ -14,7 +14,7 @@ class Level:
     def setup_level(self,layout):
         # Groups
         self.tiles = pygame.sprite.Group()
-        self.player = pygame.sprite.Group()
+        self.player = pygame.sprite.GroupSingle()
 
         for row_index,row in enumerate(layout): #enumerate gives a tuple
             for col_index, cell in enumerate(row): #individual char in the str
@@ -31,12 +31,31 @@ class Level:
                     player_sprite = Player((x,y))
                     self.player.add(player_sprite)
 
+    # Camera movement
+    def scroll_x(self):
+        player = self.player.sprite
+        player_x = player.rect.centerx
+        direction_x = player.direction.x
+
+
+
+        if player_x < 200 and direction_x < 0: # move left
+            self.world_shift = 8*2
+            player.speed = 0
+
+        elif player_x > 1000 and direction_x > 0: # move right
+            self.world_shift = -8*2
+            player.speed = 0
+        else:
+            self.world_shift = 0
+            player.speed = 8
 
     def run(self):
 
         # level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
+        self.scroll_x()
 
         # player
         self.player.update()
