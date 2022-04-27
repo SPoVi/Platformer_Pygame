@@ -10,6 +10,7 @@ class Level:
         self.display_surface = surface
         self.setup_level(level_data)
         self.world_shift = 0
+        self.current_x = 0
 
     def setup_level(self,layout):
         # Groups
@@ -60,8 +61,18 @@ class Level:
             if sprite.rect.colliderect(player.rect): # rect is for tile
                 if player.direction.x < 0: # moving left
                     player.rect.left = sprite.rect.right # move player to de right of the tile (rect)
+                    player.on_left = True
+                    self.current_x = player.rect.left
                 elif player.direction.x > 0: # moving right
                     player.rect.right = sprite.rect.left
+                    player.on_right = True
+                    self.current_x = player.rect.right
+
+        if player.on_left and (player.rect.left < self.current_x or player.direction.x >= 0): #exceded the obstacle and not touching it anymore
+            player.on_left = False
+        elif player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
+            player.on_right = False
+
 
     def vertical_movement_collision(self): # UP AND DOWN collisions
         player = self.player.sprite
