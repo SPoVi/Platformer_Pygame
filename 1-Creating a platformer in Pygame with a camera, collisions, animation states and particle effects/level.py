@@ -10,6 +10,7 @@ class Level:
         self.display_surface = surface
         self.setup_level(level_data)
         self.world_shift = 0
+        self.current_x = 0
 
     def setup_level(self,layout):
         # Groups
@@ -60,22 +61,39 @@ class Level:
             if sprite.rect.colliderect(player.rect): # rect is for tile
                 if player.direction.x < 0: # moving left
                     player.rect.left = sprite.rect.right # move player to de right of the tile (rect)
+                    player.on_left = True
+                    self.current_x = player.rect.left
                 elif player.direction.x > 0: # moving right
                     player.rect.right = sprite.rect.left
+                    player.on_right = True
+                    self.current_x = player.rect.right
 
-    def vertical_movement_collision(self):
+        if player.on_left and (player.rect.left < self.current_x or player.direction.x >= 0): #exceded the obstacle and not touching it anymore
+            player.on_left = False
+        elif player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
+            player.on_right = False
+
+
+    def vertical_movement_collision(self): # UP AND DOWN collisions
         player = self.player.sprite
         player.apply_gravity()
 
         for sprite in self.tiles.sprites():
-            # UP AND DOWN collisions
             if sprite.rect.colliderect(player.rect):
-                if player.direction.y > 0:  # moving down
+                if player.direction.y > 0:                  # moving down
                     player.rect.bottom = sprite.rect.top
-                    player.direction.y = 0 #reset gravity effect
-                elif player.direction.y < 0:  # moving up
+                    player.direction.y = 0                  #reset gravity effect
+                    player.on_ground = True
+                elif player.direction.y < 0:                # moving up
                     player.rect.top = sprite.rect.bottom
-                    player.direction.y = 0 # Avoids sticks to the ceiling (spiderman effect)
+                    player.direction.y = 0                  # Avoids sticks to the ceiling (spiderman effect)
+                    player.on_ceiling = True
+
+        # if jumping or falling
+        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
+            player.on_ground = False
+        if player.on_ceiling and player.direction.y > 0:
+            player.on_ceiling = False
 
     def run(self):
 
