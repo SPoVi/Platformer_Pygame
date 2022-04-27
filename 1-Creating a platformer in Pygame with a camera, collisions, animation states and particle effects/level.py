@@ -17,6 +17,7 @@ class Level:
         self.tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
 
+
         for row_index,row in enumerate(layout): #enumerate gives a tuple
             for col_index, cell in enumerate(row): #individual char in the str
                 #print(f'{row_index},{col_index}:{cell}') # row,col,val
@@ -29,7 +30,7 @@ class Level:
                     self.tiles.add(tile)
                 # player
                 if cell == 'P':
-                    player_sprite = Player((x,y))
+                    player_sprite = Player((x,y), self.display_surface)
                     self.player.add(player_sprite)
 
     # Camera movement
@@ -72,7 +73,6 @@ class Level:
             player.on_left = False
         elif player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
             player.on_right = False
-
 
     def vertical_movement_collision(self): # UP AND DOWN collisions
         player = self.player.sprite
