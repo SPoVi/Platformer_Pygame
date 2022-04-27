@@ -18,6 +18,10 @@ class Level:
 
 
     def create_jump_particles(self,pos):
+        if self.player.sprite.facing_right:
+            pos -= pygame.math.Vector2(10,5) # values set by testing
+        else:
+            pos += pygame.math.Vector2(10,5)
         jump_particle_sprite = ParticleEffect(pos,'jump')
         self.dust_sprite.add(jump_particle_sprite)
 
