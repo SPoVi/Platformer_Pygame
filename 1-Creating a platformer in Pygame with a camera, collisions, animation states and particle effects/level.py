@@ -63,19 +63,26 @@ class Level:
                 elif player.direction.x > 0: # moving right
                     player.rect.right = sprite.rect.left
 
-    def vertical_movement_collision(self):
+    def vertical_movement_collision(self): # UP AND DOWN collisions
         player = self.player.sprite
         player.apply_gravity()
 
         for sprite in self.tiles.sprites():
-            # UP AND DOWN collisions
             if sprite.rect.colliderect(player.rect):
-                if player.direction.y > 0:  # moving down
+                if player.direction.y > 0:                  # moving down
                     player.rect.bottom = sprite.rect.top
-                    player.direction.y = 0 #reset gravity effect
-                elif player.direction.y < 0:  # moving up
+                    player.direction.y = 0                  #reset gravity effect
+                    player.on_ground = True
+                elif player.direction.y < 0:                # moving up
                     player.rect.top = sprite.rect.bottom
-                    player.direction.y = 0 # Avoids sticks to the ceiling (spiderman effect)
+                    player.direction.y = 0                  # Avoids sticks to the ceiling (spiderman effect)
+                    player.on_ceiling = True
+
+        # if jumping or falling
+        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
+            player.on_ground = False
+        if player.on_ceiling and player.direction.y > 0:
+            player.on_ceiling = False
 
     def run(self):
 
