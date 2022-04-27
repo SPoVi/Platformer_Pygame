@@ -17,16 +17,24 @@ class Player(pygame.sprite.Sprite):
         self.gravity = 0.8
         self.jump_speed = -16
 
+        # player status
+        self.status = 'idle' # not moving
+
     def import_character_assets(self):
         character_path = '../RESOURCES/1 - Basic platformer/graphics/character/'
         self.animations = {'idle':[], 'run':[], 'jump':[], 'fall':[]} #subfolder names as a key of de dict
-
+        '''
+        idle: direction.y == 0 and direction.x ==0
+        run: direction.y == 0 and direction.x !=0
+        jump: direction.y < 0
+        fall: direction.y > 0
+        '''
         for animation in self.animations.keys():
             full_path = character_path + animation
             self.animations[animation] = import_folder(full_path)
 
     def animate(self):
-        animation = self.animations['run']
+        animation = self.animations[self.status]
 
         # loop over fram index
         self.frame_index  += self.animation_speed
@@ -48,6 +56,18 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE]:
             self.jump()
 
+    def get_status(self):
+        if self.direction.y < 0: # going upwards
+            self.status = 'jump'
+        elif self.direction.y > 1: #goind downwards. number > than gravity
+            self.status = 'fall'
+
+        else:
+            if self.direction.x !=0:
+                self.status = 'run'
+            else:
+                self.status = 'idle'
+
     def apply_gravity(self):
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
@@ -57,5 +77,6 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.get_input()
+        self.get_status()
         self.animate()
 
