@@ -2,6 +2,7 @@ import pygame
 from tile import Tile
 from settings import tile_size, player_speed, screen_width
 from players import Player
+from particles import ParticleEffect
 
 class Level:
     def __init__(self,level_data,surface): #surface to draw on
@@ -11,6 +12,14 @@ class Level:
         self.setup_level(level_data)
         self.world_shift = 0
         self.current_x = 0
+
+        # dust
+        self.dust_sprite = pygame.sprite.GroupSingle()
+
+
+    def create_jump_particles(self,pos):
+        jump_particle_sprite = ParticleEffect(pos,'jump')
+        self.dust_sprite.add(jump_particle_sprite)
 
     def setup_level(self,layout):
         # Groups
@@ -25,12 +34,11 @@ class Level:
                 y = row_index * tile_size
                 # level tiles
                 if cell == 'X':
-
                     tile = Tile((x,y),tile_size)
                     self.tiles.add(tile)
                 # player
                 if cell == 'P':
-                    player_sprite = Player((x,y), self.display_surface)
+                    player_sprite = Player((x,y), self.display_surface, self.create_jump_particles)
                     self.player.add(player_sprite)
 
     # Camera movement
@@ -97,10 +105,16 @@ class Level:
 
     def run(self):
 
+        # dust particles
+        self.dust_sprite.update(self.world_shift)
+        self.dust_sprite.draw(self.display_surface)
+
         # level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
         self.scroll_x()
+
+
 
         # player
         self.player.update()

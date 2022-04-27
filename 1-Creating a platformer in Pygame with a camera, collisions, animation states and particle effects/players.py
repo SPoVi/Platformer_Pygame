@@ -3,7 +3,7 @@ from settings import player_speed
 from support import import_folder
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, surface):
+    def __init__(self, pos, surface, create_jump_particles):
         super().__init__()
         self.import_character_assets()
         self.frame_index = 0
@@ -16,6 +16,7 @@ class Player(pygame.sprite.Sprite):
         self.dust_frame_index = 0
         self.dust_animation_speed = 0.15
         self.display_surface = surface
+        self.create_jump_particles = create_jump_particles
 
         # player movement
         self.direction = pygame.math.Vector2(0,0)
@@ -80,6 +81,7 @@ class Player(pygame.sprite.Sprite):
     def run_dust_animation(self):
         if self.status == 'run' and self.on_ground:
             self.dust_frame_index += self.dust_animation_speed
+
             if self.dust_frame_index >= len(self.dust_run_particles):
                 self.dust_frame_index = 0
 
@@ -93,6 +95,7 @@ class Player(pygame.sprite.Sprite):
                 flipped_dust_particle = pygame.transform.flip(dust_particle,True,False)
                 self.display_surface.blit(flipped_dust_particle,pos)
 
+    # KEYS
     def get_input(self):
         keys = pygame.key.get_pressed()
 
@@ -108,6 +111,7 @@ class Player(pygame.sprite.Sprite):
         # Se podria añadir mas condiciones, como que la barra del jetpack no este a cero
         if keys[pygame.K_SPACE] and self.on_ground:
             self.jump()
+            self.create_jump_particles(self.rect.midbottom) #pos
 
     def get_status(self):
         if self.direction.y < 0: # going upwards
