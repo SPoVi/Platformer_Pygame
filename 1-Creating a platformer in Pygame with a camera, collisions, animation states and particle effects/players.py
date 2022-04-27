@@ -19,6 +19,7 @@ class Player(pygame.sprite.Sprite):
 
         # player status
         self.status = 'idle' # not moving
+        self.facing_right = True
 
     def import_character_assets(self):
         character_path = '../RESOURCES/1 - Basic platformer/graphics/character/'
@@ -41,15 +42,22 @@ class Player(pygame.sprite.Sprite):
         if self.frame_index >=len(animation):
             self.frame_index = 0
 
-        self.image = animation[int(self.frame_index)]
+        image = animation[int(self.frame_index)]
+        if self.facing_right:
+            self.image = animation[int(self.frame_index)]
+        else:
+            flipped_image = pygame.transform.flip(image,True,False) #img,hor,vert
+            self.image = flipped_image
 
     def get_input(self):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RIGHT]:
             self.direction.x = 1
+            self.facing_right = True
         elif keys[pygame.K_LEFT]:
             self.direction.x = -1
+            self.facing_right = False
         else:
             self.direction.x = 0
 
