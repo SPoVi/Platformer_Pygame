@@ -2,6 +2,7 @@ import pygame
 from support import import_csv_layout, import_cut_graphics
 from settings import tile_size
 from tile import Tile, StaticTile, Crate, Coin, Palm
+from enemy import Enemy
 
 class Level:
     def __init__(self, level_data, surface):
@@ -33,6 +34,17 @@ class Level:
         fg_palms_layout = import_csv_layout(level_data['fg palms'])
         self.fg_palms_sprites = self.create_tile_group(fg_palms_layout, 'fg palms')
 
+        # backgroudn palms
+        bg_palms_layout = import_csv_layout(level_data['bg palms'])
+        self.bg_palms_sprites = self.create_tile_group(bg_palms_layout, 'bg palms')
+
+        #enemy
+        enemy_layout = import_csv_layout(level_data['enemies'])
+        self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemies')
+
+        # constraint
+        cosntraint_layout = import_csv_layout(level_data['cosntraints'])
+        self.constraint_sprites = self.create_tile_group(cosntraint_layout,'cosntraints')
     def create_tile_group(self,layout,type):
         sprite_group = pygame.sprite.Group()
 
@@ -68,31 +80,57 @@ class Level:
                         if val == '1':
                             sprite = Palm(tile_size,x,y,'../graphics/terrain/palm_large',69)
 
+                    if type == 'bg palms':
+                        sprite = Palm(tile_size, x, y, '../graphics/terrain/palm_bg', 64)
 
+                    if type == 'enemies':
+                        sprite = Enemy(tile_size,x,y)
+
+                    if type == 'cosntraints':
+                        sprite = Tile(tile_size,x,y)
 
                     sprite_group.add(sprite)
 
         return sprite_group
 
+    def enemy_collision_reverse(self):
+        for enemy in self.enemy_sprites.sprites(): # check enemies in sprites
+            if pygame.sprite.spritecollide(enemy,self.constraint_sprites,False): # if enemy is colliding with any constr
+               enemy.reverse()
+
     def run(self):
 
         # run the entire game/level
+
         # terrain
         self.terrain_sprites.update(self.world_shift)
         self.terrain_sprites.draw(self.display_surface)
 
-        # grass
-        self.grass_sprites.update(self.world_shift)
-        self.grass_sprites.draw(self.display_surface)
+        # background palms
+        self.bg_palms_sprites.update(self.world_shift)
+        self.bg_palms_sprites.draw(self.display_surface)
 
         #crate
         self.crates_sprites.update(self.world_shift)
         self.crates_sprites.draw(self.display_surface)
 
+        # foreground palms
+        self.fg_palms_sprites.update(self.world_shift)
+        self.fg_palms_sprites.draw(self.display_surface)
+
+        # grass
+        self.grass_sprites.update(self.world_shift)
+        self.grass_sprites.draw(self.display_surface)
+
         # coins
         self.coins_sprites.update(self.world_shift)
         self.coins_sprites.draw(self.display_surface)
 
-        # plams
-        self.fg_palms_sprites.update(self.world_shift)
-        self.fg_palms_sprites.draw(self.display_surface)
+        # enemy
+        self.enemy_sprites.update(self.world_shift)
+        self.constraint_sprites.update(self.world_shift)    # cosntraints
+        self.enemy_collision_reverse()                      # check collisions
+        self.enemy_sprites.draw(self.display_surface)
+        #self.constraint_sprites.draw(self.display_surface)   # not drawing them
+
+
