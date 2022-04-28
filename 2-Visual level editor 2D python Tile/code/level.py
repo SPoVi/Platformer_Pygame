@@ -33,6 +33,10 @@ class Level:
         fg_palms_layout = import_csv_layout(level_data['fg palms'])
         self.fg_palms_sprites = self.create_tile_group(fg_palms_layout, 'fg palms')
 
+        # backgroudn palms
+        bg_palms_layout = import_csv_layout(level_data['bg palms'])
+        self.bg_palms_sprites = self.create_tile_group(bg_palms_layout, 'bg palms')
+
     def create_tile_group(self,layout,type):
         sprite_group = pygame.sprite.Group()
 
@@ -68,7 +72,8 @@ class Level:
                         if val == '1':
                             sprite = Palm(tile_size,x,y,'../graphics/terrain/palm_large',69)
 
-
+                    if type == 'bg palms':
+                        sprite = Palm(tile_size, x, y, '../graphics/terrain/palm_bg', 64)
 
                     sprite_group.add(sprite)
 
@@ -77,6 +82,7 @@ class Level:
     def run(self):
 
         # run the entire game/level
+
         # terrain
         self.terrain_sprites.update(self.world_shift)
         self.terrain_sprites.draw(self.display_surface)
@@ -85,14 +91,21 @@ class Level:
         self.grass_sprites.update(self.world_shift)
         self.grass_sprites.draw(self.display_surface)
 
+        # background palms
+        self.bg_palms_sprites.update(self.world_shift)
+        self.bg_palms_sprites.draw(self.display_surface)
+
         #crate
         self.crates_sprites.update(self.world_shift)
         self.crates_sprites.draw(self.display_surface)
+
+
+        # foreground palms
+        self.fg_palms_sprites.update(self.world_shift)
+        self.fg_palms_sprites.draw(self.display_surface)
 
         # coins
         self.coins_sprites.update(self.world_shift)
         self.coins_sprites.draw(self.display_surface)
 
-        # plams
-        self.fg_palms_sprites.update(self.world_shift)
-        self.fg_palms_sprites.draw(self.display_surface)
+
