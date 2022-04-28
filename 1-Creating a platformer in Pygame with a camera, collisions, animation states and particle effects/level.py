@@ -2,6 +2,7 @@ import pygame
 from tile import Tile
 from settings import tile_size, player_speed, screen_width
 from players import Player
+from particles import ParticleEffect
 
 class Level:
     def __init__(self,level_data,surface): #surface to draw on
@@ -12,10 +13,41 @@ class Level:
         self.world_shift = 0
         self.current_x = 0
 
+        # dust
+        self.dust_sprite = pygame.sprite.GroupSingle()
+
+        self.player_on_ground = False
+
+
+    def create_jump_particles(self,pos):
+        if self.player.sprite.facing_right: #creating an offset
+            pos -= pygame.math.Vector2(10,5) # values set by testing
+        else:
+            pos += pygame.math.Vector2(10,-5)
+        jump_particle_sprite = ParticleEffect(pos,'jump')
+        self.dust_sprite.add(jump_particle_sprite)
+
+    def get_player_on_ground(self):
+        if self.player.sprite.on_ground:
+            self.player_on_ground = True
+        else:
+            self.player_on_ground = False # it is in the air
+
+    def create_landing_dust(self):
+        # play animation only once
+        if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
+            if self.player.sprite.facing_right:
+                offset = pygame.math.Vector2(10,15)
+            else:
+                offset = pygame.math.Vector2(-10,15)
+            fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset,'land')
+            self.dust_sprite.add(fall_dust_particle)
+
     def setup_level(self,layout):
         # Groups
         self.tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
+
 
         for row_index,row in enumerate(layout): #enumerate gives a tuple
             for col_index, cell in enumerate(row): #individual char in the str
@@ -24,12 +56,11 @@ class Level:
                 y = row_index * tile_size
                 # level tiles
                 if cell == 'X':
-
                     tile = Tile((x,y),tile_size)
                     self.tiles.add(tile)
                 # player
                 if cell == 'P':
-                    player_sprite = Player((x,y))
+                    player_sprite = Player((x,y), self.display_surface, self.create_jump_particles)
                     self.player.add(player_sprite)
 
     # Camera movement
@@ -63,7 +94,7 @@ class Level:
                     player.rect.left = sprite.rect.right # move player to de right of the tile (rect)
                     player.on_left = True
                     self.current_x = player.rect.left
-                elif player.direction.x > 0: # moving right
+                elif player.direction.x > 0.1: # moving right
                     player.rect.right = sprite.rect.left
                     player.on_right = True
                     self.current_x = player.rect.right
@@ -72,7 +103,6 @@ class Level:
             player.on_left = False
         elif player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
             player.on_right = False
-
 
     def vertical_movement_collision(self): # UP AND DOWN collisions
         player = self.player.sprite
@@ -97,6 +127,10 @@ class Level:
 
     def run(self):
 
+        # dust particles
+        self.dust_sprite.update(self.world_shift)
+        self.dust_sprite.draw(self.display_surface)
+
         # level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
@@ -105,5 +139,7 @@ class Level:
         # player
         self.player.update()
         self.horizontal_movement_collision()
+        self.get_player_on_ground()             # must be before vertical mov collision
         self.vertical_movement_collision()
+        self.create_landing_dust()              # must be after vertical mov collision
         self.player.draw(self.display_surface)
