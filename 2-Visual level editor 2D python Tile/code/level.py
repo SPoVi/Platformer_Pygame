@@ -42,6 +42,9 @@ class Level:
         enemy_layout = import_csv_layout(level_data['enemies'])
         self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemies')
 
+        # constraint
+        cosntraint_layout = import_csv_layout(level_data['cosntraints'])
+        self.constraint_sprites = self.create_tile_group(cosntraint_layout,'cosntraints')
     def create_tile_group(self,layout,type):
         sprite_group = pygame.sprite.Group()
 
@@ -82,9 +85,18 @@ class Level:
 
                     if type == 'enemies':
                         sprite = Enemy(tile_size,x,y)
+
+                    if type == 'cosntraints':
+                        sprite = Tile(tile_size,x,y)
+
                     sprite_group.add(sprite)
 
         return sprite_group
+
+    def enemy_collision_reverse(self):
+        for enemy in self.enemy_sprites.sprites(): # check enemies in sprites
+            if pygame.sprite.spritecollide(enemy,self.constraint_sprites,False): # if enemy is colliding with any constr
+               enemy.reverse()
 
     def run(self):
 
@@ -116,6 +128,9 @@ class Level:
 
         # enemy
         self.enemy_sprites.update(self.world_shift)
+        self.constraint_sprites.update(self.world_shift)    # cosntraints
+        self.enemy_collision_reverse()                      # check collisions
         self.enemy_sprites.draw(self.display_surface)
+        #self.constraint_sprites.draw(self.display_surface)   # not drawing them
 
 
