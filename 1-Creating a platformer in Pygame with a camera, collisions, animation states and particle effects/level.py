@@ -16,14 +16,32 @@ class Level:
         # dust
         self.dust_sprite = pygame.sprite.GroupSingle()
 
+        self.player_on_ground = False
+
 
     def create_jump_particles(self,pos):
-        if self.player.sprite.facing_right:
+        if self.player.sprite.facing_right: #creating an offset
             pos -= pygame.math.Vector2(10,5) # values set by testing
         else:
-            pos += pygame.math.Vector2(10,5)
+            pos += pygame.math.Vector2(10,-5)
         jump_particle_sprite = ParticleEffect(pos,'jump')
         self.dust_sprite.add(jump_particle_sprite)
+
+    def get_player_on_ground(self):
+        if self.player.sprite.on_ground:
+            self.player_on_ground = True
+        else:
+            self.player_on_ground = False # it is in the air
+
+    def create_landing_dust(self):
+        # play animation only once
+        if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
+            if self.player.sprite.facing_right:
+                offset = pygame.math.Vector2(10,15)
+            else:
+                offset = pygame.math.Vector2(-10,15)
+            fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset,'land')
+            self.dust_sprite.add(fall_dust_particle)
 
     def setup_level(self,layout):
         # Groups
@@ -76,7 +94,7 @@ class Level:
                     player.rect.left = sprite.rect.right # move player to de right of the tile (rect)
                     player.on_left = True
                     self.current_x = player.rect.left
-                elif player.direction.x > 0: # moving right
+                elif player.direction.x > 0.1: # moving right
                     player.rect.right = sprite.rect.left
                     player.on_right = True
                     self.current_x = player.rect.right
@@ -118,10 +136,10 @@ class Level:
         self.tiles.draw(self.display_surface)
         self.scroll_x()
 
-
-
         # player
         self.player.update()
         self.horizontal_movement_collision()
+        self.get_player_on_ground()             # must be before vertical mov collision
         self.vertical_movement_collision()
+        self.create_landing_dust()              # must be after vertical mov collision
         self.player.draw(self.display_surface)
