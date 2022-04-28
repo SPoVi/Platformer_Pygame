@@ -2,6 +2,7 @@ import pygame
 from support import import_csv_layout, import_cut_graphics
 from settings import tile_size
 from tile import Tile, StaticTile, Crate, Coin, Palm
+from enemy import Enemy
 
 class Level:
     def __init__(self, level_data, surface):
@@ -36,6 +37,10 @@ class Level:
         # backgroudn palms
         bg_palms_layout = import_csv_layout(level_data['bg palms'])
         self.bg_palms_sprites = self.create_tile_group(bg_palms_layout, 'bg palms')
+
+        #enemy
+        enemy_layout = import_csv_layout(level_data['enemies'])
+        self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemies')
 
     def create_tile_group(self,layout,type):
         sprite_group = pygame.sprite.Group()
@@ -75,6 +80,8 @@ class Level:
                     if type == 'bg palms':
                         sprite = Palm(tile_size, x, y, '../graphics/terrain/palm_bg', 64)
 
+                    if type == 'enemies':
+                        sprite = Enemy(tile_size,x,y)
                     sprite_group.add(sprite)
 
         return sprite_group
@@ -87,10 +94,6 @@ class Level:
         self.terrain_sprites.update(self.world_shift)
         self.terrain_sprites.draw(self.display_surface)
 
-        # grass
-        self.grass_sprites.update(self.world_shift)
-        self.grass_sprites.draw(self.display_surface)
-
         # background palms
         self.bg_palms_sprites.update(self.world_shift)
         self.bg_palms_sprites.draw(self.display_surface)
@@ -99,13 +102,20 @@ class Level:
         self.crates_sprites.update(self.world_shift)
         self.crates_sprites.draw(self.display_surface)
 
-
         # foreground palms
         self.fg_palms_sprites.update(self.world_shift)
         self.fg_palms_sprites.draw(self.display_surface)
 
+        # grass
+        self.grass_sprites.update(self.world_shift)
+        self.grass_sprites.draw(self.display_surface)
+
         # coins
         self.coins_sprites.update(self.world_shift)
         self.coins_sprites.draw(self.display_surface)
+
+        # enemy
+        self.enemy_sprites.update(self.world_shift)
+        self.enemy_sprites.draw(self.display_surface)
 
 
