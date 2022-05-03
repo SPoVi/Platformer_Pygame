@@ -3,6 +3,7 @@ from support import import_csv_layout, import_cut_graphics
 from settings import tile_size
 from tile import Tile, StaticTile, Crate, Coin, Palm
 from enemy import Enemy
+from decoration import Sky
 
 class Level:
     def __init__(self, level_data, surface):
@@ -51,6 +52,10 @@ class Level:
         # constraint
         cosntraint_layout = import_csv_layout(level_data['cosntraints'])
         self.constraint_sprites = self.create_tile_group(cosntraint_layout,'cosntraints')
+
+        # decoration
+        self.sky = Sky(8)
+
 
     def create_tile_group(self,layout,type):
         sprite_group = pygame.sprite.Group()
@@ -121,6 +126,9 @@ class Level:
 
         # run the entire game/level
 
+        # decoration
+        self.sky.draw(self.display_surface)
+
         # terrain
         self.terrain_sprites.update(self.world_shift)
         self.terrain_sprites.draw(self.display_surface)
@@ -155,3 +163,5 @@ class Level:
         # player sprites
         self.goal.update(self.world_shift)
         self.goal.draw(self.display_surface)
+
+
