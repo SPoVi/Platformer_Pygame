@@ -1,14 +1,21 @@
 import pygame
 from support import import_csv_layout, import_cut_graphics
-from settings import tile_size
+from settings import tile_size, screen_height
 from tile import Tile, StaticTile, Crate, Coin, Palm
 from enemy import Enemy
+from decoration import Sky, Water
 
 class Level:
     def __init__(self, level_data, surface):
         # general setup
         self.display_surface = surface
-        self.world_shift = 0
+        self.world_shift = -4
+
+        # player setup
+        player_layout = import_csv_layout(level_data['player'])
+        self.player = pygame.sprite.GroupSingle()
+        self.goal = pygame.sprite.GroupSingle()
+        self.player_setup(player_layout)
 
         # terrain setup
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -45,6 +52,13 @@ class Level:
         # constraint
         cosntraint_layout = import_csv_layout(level_data['cosntraints'])
         self.constraint_sprites = self.create_tile_group(cosntraint_layout,'cosntraints')
+
+        # decoration
+        self.sky = Sky(8)
+        level_width = len(terrain_layout[0] * tile_size)
+        self.water = Water(screen_height -20, level_width)
+
+
     def create_tile_group(self,layout,type):
         sprite_group = pygame.sprite.Group()
 
@@ -93,6 +107,18 @@ class Level:
 
         return sprite_group
 
+    def player_setup(self,layout):
+        for row_index, row in enumerate(layout):
+            for col_index, val in enumerate(row):
+                x = col_index * tile_size
+                y = row_index * tile_size
+                if val == '0': # player
+                    print('player goes here')
+                if val == '1':
+                    hat_surface = pygame.image.load('../../RESOURCES/2 - Level/graphics/character/hat.png').convert_alpha()
+                    sprite = StaticTile(tile_size,x,y,hat_surface)
+                    self.goal.add(sprite)
+
     def enemy_collision_reverse(self):
         for enemy in self.enemy_sprites.sprites(): # check enemies in sprites
             if pygame.sprite.spritecollide(enemy,self.constraint_sprites,False): # if enemy is colliding with any constr
@@ -101,6 +127,12 @@ class Level:
     def run(self):
 
         # run the entire game/level
+
+        # decoration
+        self.sky.draw(self.display_surface)
+
+        # water
+        self.water.draw(self.display_surface,self.world_shift)
 
         # terrain
         self.terrain_sprites.update(self.world_shift)
@@ -132,5 +164,9 @@ class Level:
         self.enemy_collision_reverse()                      # check collisions
         self.enemy_sprites.draw(self.display_surface)
         #self.constraint_sprites.draw(self.display_surface)   # not drawing them
+
+        # player sprites
+        self.goal.update(self.world_shift)
+        self.goal.draw(self.display_surface)
 
 
